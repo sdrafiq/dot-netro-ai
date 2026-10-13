@@ -31,7 +31,7 @@ config = types.GenerateContentConfig(
 )
 
 chat_session = client.chats.create(
-    model="gemini-3.8-flash", # মডেলটি আপডেট করা হয়েছে যাতে ফাস্ট কাজ করে
+    model="gemini-3.8-pro", # মডেলটি আপডেট করা হয়েছে যাতে ফাস্ট কাজ করে
     config=config
 )
 
