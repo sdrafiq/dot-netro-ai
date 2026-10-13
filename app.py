@@ -53,7 +53,7 @@ def agent_action(command):
             try:
                 chat_completion = client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
-                    model="llama3-70b-8192",
+                    model="llama-3.1-70b-versatile",
                 )
                 return chat_completion.choices[0].message.content
             except Exception as e:
@@ -65,7 +65,7 @@ def agent_action(command):
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": command}
                 ],
-                model="llama3-70b-8192",
+                model="llama-3.1-70b-versatile",
             )
             reply = chat_completion.choices[0].message.content
             
