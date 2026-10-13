@@ -12,19 +12,8 @@ load_dotenv()
 # Groq এপিআই ক্লায়েন্ট সেটআপ
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-# ম্যাজিক ট্রিক: Groq-এর সার্ভার থেকে লাইভ মডেলের নাম টেনে আনা
-def get_active_model():
-    try:
-        models = client.models.list().data
-        for m in models:
-            # অডিও/হুইস্পার মডেল বাদে প্রথম যে টেক্সট মডেলটি পাবে, সেটিই ব্যবহার করবে
-            if "whisper" not in m.id.lower():
-                return m.id
-        return models[0].id
-    except:
-        return "gpt-oss-20b"  # ব্যাকআপ মডেল
-
-ACTIVE_MODEL = get_active_model()
+# সবচেয়ে স্ট্যাবল এবং পার্মানেন্ট মডেল
+ACTIVE_MODEL = "mixtral-8x7b-32768"
 
 system_prompt = """তুমি হলে 'ডট নেত্র' (Dot Netro), একটি অত্যন্ত স্মার্ট, বুদ্ধিমান এবং সাহায্যকারী এআই অ্যাসিস্ট্যান্ট। তোমার বস (যিনি তোমাকে তৈরি করেছেন) তোমাকে কমান্ড দিচ্ছেন। 
 তোমার কাজ হলো বসের সব কথা শোনা, তার পিসি কন্ট্রোল করতে সাহায্য করা এবং যেকোনো সাধারণ বা জটিল প্রশ্নের একদম সঠিক, সুন্দর ও গোছানো উত্তর দেওয়া। 
