@@ -12,13 +12,27 @@ load_dotenv()
 # Groq এপিআই ক্লায়েন্ট সেটআপ
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
+# ম্যাজিক ট্রিক: Groq-এর সার্ভার থেকে লাইভ মডেলের নাম টেনে আনা
+def get_active_model():
+    try:
+        models = client.models.list().data
+        for m in models:
+            # অডিও/হুইস্পার মডেল বাদে প্রথম যে টেক্সট মডেলটি পাবে, সেটিই ব্যবহার করবে
+            if "whisper" not in m.id.lower():
+                return m.id
+        return models[0].id
+    except:
+        return "gpt-oss-20b"  # ব্যাকআপ মডেল
+
+ACTIVE_MODEL = get_active_model()
+
 system_prompt = """তুমি হলে 'ডট নেত্র' (Dot Netro), একটি অত্যন্ত স্মার্ট, বুদ্ধিমান এবং সাহায্যকারী এআই অ্যাসিস্ট্যান্ট। তোমার বস (যিনি তোমাকে তৈরি করেছেন) তোমাকে কমান্ড দিচ্ছেন। 
 তোমার কাজ হলো বসের সব কথা শোনা, তার পিসি কন্ট্রোল করতে সাহায্য করা এবং যেকোনো সাধারণ বা জটিল প্রশ্নের একদম সঠিক, সুন্দর ও গোছানো উত্তর দেওয়া। 
 
 **বিশেষ ক্ষমতা ১ - ওয়েবসাইট তৈরি:** ওয়েবসাইট তৈরি করতে বললে তুমি [WEBSITE_START] এবং [WEBSITE_END] ব্যবহার করে HTML কোড দেবে।
 
 **বিশেষ ক্ষমতা ২ - পিসিতে স্বয়ংক্রিয় ফাইল তৈরি:** 
-বস যদি তোমাকে কোনো ফাইল (যেমন: requirements.txt, index.html ইত্যাদি) বা ফোল্ডারের ভেতরে ফাইল তৈরি করতে বলেন, তুমি ঠিক এইভাবে ফাইলের নাম এবং ভেতরের লেখা দেবে:
+বস যদি তোমাকে কোনো ফাইল বা ফোল্ডারের ভেতরে ফাইল তৈরি করতে বলেন, তুমি ঠিক এইভাবে ফাইলের নাম এবং ভেতরের লেখা দেবে:
 [FILE_START: ফাইলের_নাম]
 এখানে ফাইলের ভেতরের সব লেখা বা কোড থাকবে...
 [FILE_END]
@@ -53,7 +67,7 @@ def agent_action(command):
             try:
                 chat_completion = client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
-                    model="llama-3.3-70b-versatile",
+                    model=ACTIVE_MODEL,
                 )
                 return chat_completion.choices[0].message.content
             except Exception as e:
@@ -65,11 +79,10 @@ def agent_action(command):
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": command}
                 ],
-                model="llama-3.3-70b-versatile",
+                model=ACTIVE_MODEL,
             )
             reply = chat_completion.choices[0].message.content
             
-            # ওয়েবসাইট অটোমেটিক ওপেন করার লজিক
             if "[WEBSITE_START]" in reply and "[WEBSITE_END]" in reply:
                 start = reply.find("[WEBSITE_START]") + len("[WEBSITE_START]")
                 end = reply.find("[WEBSITE_END]")
@@ -82,7 +95,6 @@ def agent_action(command):
                 
                 reply = reply.replace(reply[reply.find("[WEBSITE_START]"):reply.find("[WEBSITE_END]") + len("[WEBSITE_END]")], "").strip()
                 
-            # নতুন ক্ষমতা: ফাইল ও ফোল্ডার তৈরি করার লজিক
             if "[FILE_START:" in reply and "[FILE_END]" in reply:
                 match = re.search(r"\[FILE_START:\s*(.*?)\](.*?)\[FILE_END\]", reply, re.DOTALL)
                 if match:
