@@ -1,0 +1,14 @@
+{
+  "shop": {
+    "contact": "ফোন/হোয়াটসঅ্যাপ: 01400033599",
+    "delivery_note": "ঢাকার ভেতরে ও বাইরে কুরিয়ারে ডেলিভারি দেওয়া হয়।"
+  },
+  "products": [
+    {
+      "name": "নমুনা পণ্য ১ (ট্রান্সপারেন্ট গ্লাস ইলেকট্রিক কেটলি)",
+      "price": 950,
+      "delivery": "ঢাকায় ২-৩ দিন, ঢাকার বাইরে ৩-৫ দিন",
+      "details": "Prestige Crystal Glass Electric Kettle, 1.8L, 1000W, 220V, 50Hz – Transparent Glass, Fast Boil, Elegant Design, Multiple Colors, Perfect for Hot Water, Tea, and Coffee"
+    }
+  ]
+}
